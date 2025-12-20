@@ -22,18 +22,47 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # IMPORTANT: remove pnpm cache here, because pnpm isn't installed yet.
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: "9"
 
+      - name: Detect project directory
+        id: proj
+        shell: bash
+        run: |
+          set -e
+          echo "Repo root files:"
+          ls -la
+
+          if [ -f "package.json" ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ -f "packages/toolkit/package.json" ]; then
+            echo "dir=packages/toolkit" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ -f "apps/toolkit/package.json" ]; then
+            echo "dir=apps/toolkit" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "ERROR: No package.json found in root or common subfolders."
+          echo "Fix: add package.json at repo root OR adjust the workflow to your actual folder."
+          exit 1
+
       - name: Install deps
+        working-directory: ${{ steps.proj.outputs.dir }}
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        working-directory: ${{ steps.proj.outputs.dir }}
         run: pnpm build
 
       - name: Test
+        working-directory: ${{ steps.proj.outputs.dir }}
         run: pnpm test
