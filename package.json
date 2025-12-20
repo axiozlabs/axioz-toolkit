@@ -1,8 +1,11 @@
 {
   "name": "@axioz/toolkit",
   "version": "0.0.1",
+  "description": "Workflow and tool orchestration layer for Axioz agents.",
+  "license": "MIT",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "build": "tsup",
     "test": "vitest run"
